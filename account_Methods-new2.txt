@@ -1,0 +1,38 @@
+Public with sharing class account_Methods {
+	Public static void afterUpdate(List<Account> newList, List<Account> oldList){
+		set<id> needUpdateTotalReimbursement = new set<Id>();
+		set<id> needUpdateGeocode = new set<Id>();
+	
+		for (integer i=0; i<newList.size(); i++){
+			if (newlist[i].TotalReimbursed_Expenses__c != oldlist[i].TotalReimbursed_Expenses__c) {
+			 needUpdatedTotalReimbursements.add(newlist[i].id);
+			}
+			
+			if ((newlist[i].billingstreet != oldlist[i].billingstreet) || (newlist[i].billingpostalcode != oldlist[i].billingpostalcode)){
+				needUpdatedGeoCode.add(newlist[i].id);
+			}
+		} 
+	
+		if (!needUpdateTotalReimbursements.isEmpty()){
+			updateAccountTotalReimbursements(needUpdateTotalReimbursements);
+		}
+		
+		if (!needUpdatedGeoCode.isEmpty()){ 
+			util.geocode(needUpdatedGeoCode);
+		}
+	}
+	
+	Public Static void updateAccountTotalReimbursements(set<id> acctids){
+
+		list<AggreateResult> arlist = [seect sum(amount__c), client__c from Expense__c where reimbursed__c = true AND client__c IN :acctid];
+	  
+		List<Account> accountUpdates = new list<Account>();
+		for (AggreateResult ar : arlist){
+			Account a = new Account(id=string.valueof(ar.get('client__c')));
+			a.Total_Reimbursed_Expenses__c = double.valueof(ar.get('expr0'));
+			accountUpdates.add(a);
+		}
+	 
+		update accountUpdates;
+	}
+}      

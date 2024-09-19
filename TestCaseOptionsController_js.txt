@@ -1,0 +1,19 @@
+({
+    handleSubmit : function(component, event, helper) {
+        component.find('editform').submit();
+    },
+
+    handleSuccess : function(component, event, helper) {
+        console.log("Deal is Updated Successfully 123 !!");
+    },
+    handleGenDocs : function(component, event, helper) {
+        
+    var urlEvent = $A.get("e.force:navigateToURL");
+    urlEvent.setParams({
+      "url": 'https://uatna11.springcm.com/atlas/doclauncher/eos/ADDENDUM B?aid=39808&eos[0].Id=a4A2i000000FzzmEAC&eos[0].System=Salesforce&eos[0].Type=zpl__PriceLookup__c&eos[0].Name={!Account.Name}&eos[0].ScmPath=/Salesforce/Price Lookup/'
+    });
+    urlEvent.fire();
+	}
+   
+    
+})

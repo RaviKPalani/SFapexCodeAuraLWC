@@ -1,0 +1,97 @@
+<apex:page controller="UserNamePasswordIntegrationCls" lightningStylesheets="true">
+
+    <apex:form >
+
+        <apex:pageMessages ></apex:pageMessages>
+
+        <apex:pageblock title="integration HTTPGET">
+
+            <span>Access token:{!accessToken}</span><br/>
+
+            <span>Instance url:{!instanceurl}</span><br/>
+
+            <apex:outputLabel for="leadnameinput" value="Enter Lead Name"></apex:outputLabel>
+
+            <apex:inputText value="{!leadSearchName}" id="leadnameinput"/>
+
+            <apex:commandButton value="Get Lead From Server" action="{!requestLeadDetails}" immediate="true"/>
+
+           
+
+            <apex:pageBlockTable value="{!leadResponseList}" var="l">
+
+                <apex:column headervalue="Name" value="{!l.Name}"/>
+
+                <apex:column headervalue="Email" value="{!l.Email}"/>
+
+                <apex:column headervalue="Phone" value="{!l.Phone}"/>
+
+                <apex:column headervalue="Company" value="{!l.Company}"/>
+
+                <apex:column headervalue="MobilePhone" value="{!l.MobilePhone}"/>           
+
+               
+
+            </apex:pageBlockTable>
+
+        </apex:pageblock>
+
+        <apex:pageBlock title="Integration HttpPost">
+
+            Lead Create Message:{!leadCreateMessage}<br/>
+
+          <table>
+
+                <tr>
+
+                <td>Lead First Name:</td>
+
+                    <td><apex:inputtext label="Lead First Name" required="true" value="{!leadFirstName}" id="lfname"/></td>
+
+                </tr>
+
+                <tr>
+
+                <td>Lead Last Name:</td>
+
+                    <td><apex:inputtext label="Lead last Name" required="true" value="{!leadLastName}" id="llname"/></td>
+
+                </tr>
+
+                <tr>
+
+                <td>Lead Company Name</td>
+
+                    <td><apex:inputtext label="Lead Company Name" required="true"  value="{!leadCompanyName}" id="lcname"/></td>
+
+                </tr>
+
+                <tr>
+
+                <td>lead Email:</td>
+
+                     <td><apex:inputtext label="Lead Email" required="true" value="{!leadEmail}" id="lemail"/></td>
+
+                </tr>
+
+                <tr>
+
+                <td>Lead Phone Number</td>
+
+                     <td><apex:inputtext label="Lead phone number" required="true" value="{!leadphoneNumber}" id="lpnumber"/></td>
+
+                </tr>
+
+               
+
+            </table>
+
+            <apex:commandButton value="Create Lead in Server" action="{!createLead}"/>
+
+        </apex:pageBlock>
+
+       
+
+    </apex:form>
+
+</apex:page>

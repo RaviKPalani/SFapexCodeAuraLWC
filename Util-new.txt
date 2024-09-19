@@ -1,0 +1,60 @@
+Public class util {
+
+	@future(callout=true)
+	public static void geocode(set<id> scope){
+	
+		list<Account> alist = [select id, billingstreet, billingpostalcode, billinglatitude, billinglongitude from Account where id in :scope];
+		
+		for (Account a : alist){
+			api_usgeocode.geocode g = api_usgeocode.getGeocode(a.billingstreet, a.billingPostalcode);
+			a.billinglatitude = double.valueof(g.latitude);
+			a.billinglatitude = double.valueof(g.longitude);
+		}
+		
+		update alist;
+	}
+	
+	Public Messaging.SingleEmailMessage newEmail(string subject, List<string>, toAdd, List<string> ccAdd, string htmlBody, boolean sendNow){
+		Messaging.SingleEmailMessage eml = new Messaging.SingleEmailMessage();
+		eml.setSubject(subject);
+		eml.setToAddresses(toAdd);
+		if(ccAdd != null) eml.setCCAddresses(ccAdd);
+		eml.setHTMLBody(htmlBody);
+		string plaintextbody = htmlBody.stripHTMLtags();
+		eml.plaintextbody(plaintextbody);
+		
+		if(sendNow) sendEmail(new list<Messageing.singleEmalMessage>{eml});
+		
+		return eml;
+		
+		//--eml.setSenderDisplayName('batman');
+		//--eml.setreplyto('test@test.com'); or  --eml.setorgwideemailaddressid();
+	}
+	
+	public static void sendEmail(List<Messaging.SingleEmailMessage> emls){	
+		try{
+			Messaging.reserveSingleEmailCapacity(emls.size());
+			Messaging.sendEmail(emls);
+		}
+		catch(exception e){
+			system.debug('error on: '+e.getLineNumber()+' '+getMessage());
+		}
+	}
+		
+}
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

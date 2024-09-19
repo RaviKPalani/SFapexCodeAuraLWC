@@ -1,0 +1,110 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,flexipage:availableForRecordHome,force:hasRecordId">
+     
+    <!--Custom Styles for Modal Header and Footer--> 
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+     
+    <!--Modal Header-->  
+    <div class="modal-header slds-modal__header slds-size_1-of-1">
+        <h4 class="title slds-text-heading--medium"> Generate Documents </h4>
+    </div>
+    <!--End Modal Header-->
+    
+    <!--Modal Body-->   
+    <div class="slds-modal__content slds-p-around--x-small slds-align_absolute-center slds-size_1-of-1 slds-is-relative">
+        <form class="slds-form--stacked">
+            Printing Options
+        </form> 
+    </div>
+    <!--End of Modal Body--> 
+<!--    
+    <lightning:recordForm
+        recordId = "{!v.recordId}"
+        objectApiName="zpl__PriceLookup__c"
+        layoutType="Compact"
+        mode="edit" />
+ -->   
+    <!-- 1111111111111111111111111111111111111111111 -->
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+ 
+    <force:recordData aura:id="recordLoader"
+      fields="Name,aiq_CLM_Draft_Final__c,aiq_CLM_Contract_Lang__c,aiq_CLM_Cover_Letter__c,aiq_CLM_Cancel_Letter__c,aiq_CLM_Extension_Letter__c,aiq_CLM_Carrier_Agree__c,aiq_CLM_Addendum_A__c,aiq_CLM_Addendum_B__c"
+      recordId="{!v.recordId}"
+      targetFields="{!v.simpleRecord}"
+      targetError="{!v.recordError}"
+      recordUpdated="{!c.handleRecordUpdated}"
+      />
+ 
+    <!-- Display a lightning card with details about the record : LastModifiedById,CreatedById,aiq_DealStatus__c, -->
+    <div class="Record Details"> 
+    <lightning:card iconName="standard:account" title="{!v.simpleRecord.Name}" >
+        <div class="slds-p-horizontal--small">
+            <p class="slds-text-heading--small">
+                <lightning:formattedText title="Carrier Agreement" value="{!v.simpleRecord.aiq_CLM_Cover_Letter__c}" /></p>
+            <p class="slds-text-heading--small">
+                <lightning:formattedText title="Addendum A" value="{!v.simpleRecord.aiq_CLM_Cancel_Letter__c}" /></p>
+            <p class="slds-text-heading--small">
+                <lightning:formattedText title="Addendum A" value="{!v.simpleRecord.aiq_CLM_Extension_Letter__c}" /></p>
+            <p class="slds-text-heading--small">
+                <lightning:formattedText title="Addendum A" value="{!v.simpleRecord.aiq_CLM_Draft_Final__c}" /></p>
+            <p class="slds-text-heading--small">
+                <lightning:formattedText title="Addendum A" value="{!v.simpleRecord.aiq_CLM_Contract_Lang__c}" /></p>
+        </div>
+    </lightning:card>
+    </div>
+    
+    <!-- Display an editing form -->
+    <div class="Record Details">
+        <lightning:card iconName="action:edit" title="Edit Deal Printing Options">
+            <div class="slds-p-horizontal--small">
+               <lightning:inputfield fieldname="aiq_CLM_Draft_Final__c"/>
+               <lightning:input label="Contract Draft Final" value="{!v.simpleRecord.aiq_CLM_Draft_Final__c}"/>
+               <lightning:input label="Contract Language" value="{!v.simpleRecord.aiq_CLM_Contract_Lang__c}"/>
+                <lightning:input label="Carrier Agreement" value="{!v.simpleRecord.aiq_CLM_Carrier_Agree__c}" type="checkbox"/>
+               <lightning:input label="Addendum A" value="{!v.simpleRecord.aiq_CLM_Addendum_A__c}" type="checkbox"/>
+               <lightning:input label="Addendum B" value="{!v.simpleRecord.aiq_CLM_Addendum_B__c}" type="checkbox"/>
+               <lightning:input label="Extension Letter" value="{!v.simpleRecord.aiq_CLM_Extension_Letter__c}" type="checkbox"/>
+               <lightning:input label="Cancellation Letter" value="{!v.simpleRecord.aiq_CLM_Cancel_Letter__c}" type="checkbox"/>
+               <lightning:input label="Cover Letter" value="{!v.simpleRecord.aiq_CLM_Cover_Letter__c}" type="checkbox"/>
+               <br/>
+               <lightning:button label="Save Deal" variant="brand" onclick="{!c.handleSaveRecord}" />
+            </div>
+        </lightning:card>
+    </div>
+     
+    <!-- Display Lightning Data Service errors, if any -->
+    <aura:if isTrue="{!not(empty(v.recordError))}">
+        <div class="recordError">
+            {!v.recordError}</div>
+    </aura:if>
+    <!-- 1111111111111111111111111111111111111111111 -->
+    
+<!--    <force:recordData recordId="{!v.recordId}"
+                    fields="['Name','aiq_DealStatus__c']"
+                    targetFields="{!v.record}"
+                    aura:id="recordData"
+                    mode="EDIT"
+                    recordUpdated="{!c.recordLoaded}" />
+-->
+    <!--Modal Footer-->
+    <div class="modal-footer slds-modal__footer slds-size_1-of-1">
+        <lightning:button variant="Neutral" class="slds-button" label="Cancel" onclick="{!c.handleClose}"/>
+        <lightning:button variant="Brand" class="slds-button" label="Save" onclick="{!c.handleSubmit}"/>
+        <lightning:button variant="Brand" class="slds-button" label="Preview" onclick="{!c.handleSubmit}"/>
+        <lightning:button variant="Neutral" class="slds-button" label="Generate Documents" onclick="{!c.handleClose}"/>
+    </div>
+    <!--End of Modal Footer-->
+</aura:component>

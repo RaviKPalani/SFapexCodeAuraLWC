@@ -1,0 +1,61 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <!--Custom Styles for Modal Header and Footer--> 
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    
+	<!--Modal Header-->  
+    <div class="modal-header slds-modal__header slds-size_1-of-1">
+        <h4 class="title slds-text-heading--small"> Printing Options </h4>
+    </div>
+    <!--End Modal Header-->
+    <!-- -->
+    <aura:attribute name="strRecordId" type="String" />
+    <lightning:overlayLibrary aura:id="overlayLibDemo1"/>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    <div class="slds-theme_default">
+        <lightning:recordEditForm aura:id="editform"
+                                  onsubmit="{!c.handleSubmit}"
+                                  onsuccess="{!c.handleSuccess}"
+                                  recordId="{!v.recordId}"
+                                  objectApiName="zpl__PriceLookup__c">
+            <lightning:messages />
+			<div class="slds-grid">
+            	<div class="slds-col slds-size_1-of-3">
+            		<lightning:inputField fieldName="aiq_CLM_Draft_Final__c" />
+            		<lightning:inputField fieldName="aiq_CLM_Contract_Lang__c" />
+            		<lightning:inputField fieldName="Name" />
+            		<lightning:outputField fieldName="Id" />                    
+                </div>
+       			<div class="slds-col slds-size_1-of-3">
+                    <lightning:inputField fieldName="aiq_CLM_Carrier_Agree__c" />
+                    <lightning:inputField fieldName="aiq_CLM_Addendum_A__c" />
+                    <lightning:inputField fieldName="aiq_CLM_Addendum_B__c" />
+                    <lightning:inputField fieldName="aiq_CLM_Addendum_C__c" />
+             	</div>
+       			<div class="slds-col slds-size_1-of-3">
+                    <lightning:inputField fieldName="aiq_CLM_Cover_Letter__c" />
+                    <lightning:inputField fieldName="aiq_CLM_Cancel_Letter__c" />
+                    <lightning:inputField fieldName="aiq_CLM_Extension_Letter__c" />
+        		</div>
+        	</div>
+        </lightning:recordEditForm>
+    </div>
+    <!--Modal Footer-->
+    <div class="modal-footer slds-modal__footer slds-size_1-of-1">
+        <lightning:button variant="Brand" class="slds-button" label="Save" onclick="{!c.handleSubmit}"/>
+        <lightning:button variant="Brand" class="slds-button" label="Preview" onclick="{!c.handleSubmit}"/>
+        <lightning:button variant="Brand" class="slds-button" label="Generate Documents" onclick="{!c.handleGenDocs}"/>
+    </div>
+    <!--End of Modal Footer-->
+</aura:component>

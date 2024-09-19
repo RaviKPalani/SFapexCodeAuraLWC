@@ -1,0 +1,221 @@
+//	Sample Code - Invoke httpGet and HttpPost from client org
+
+public class UserNamePasswordIntegrationCls {
+
+    public string leadSearchName{get;set;}
+
+    public list<leadResponse> leadResponseList{get;set;}
+
+    public string accessToken{get;set;}
+
+    public string instanceurl {get;set;}
+
+    public string leadFirstName{get;set;}
+
+    public string leadLastName{get;set;}
+
+    public string leadCompanyName{get;set;}
+
+    public string leadEmail{get;set;}
+
+    public string leadphoneNumber{get;set;}
+
+    public string leadCreateMessage{get;set;}
+
+    public UserNamePasswordIntegrationCls(){
+
+      leadResponseList = new list<leadResponse>();
+
+    }
+
+    public void requestAccessToken(){
+
+    //need to get client id, clinet secret, user nameand password
+
+    list<Integration_Setup__c> integrationsetuplist = [SELECT ID,
+
+                                                               Server_Name__c,
+
+                                                               server_User_Name__c,
+
+                                                               Server_Password__c,
+
+                                                               clientId__c,
+
+                                                               client_secret__c
+
+                                                           FROM Integration_Setup__c
+
+                                                           WHERE Server_Name__c = 'ctrlf server1'
+
+                                                          ];
+
+        if(integrationsetuplist!=NULL && integrationsetuplist.size()>0){
+
+        string accesstokenEndpoint = 'https://login.salesforce.com/services/oauth2/token';
+
+            accesstokenEndpoint = accesstokenEndpoint+'?grant_type=password';
+
+            accesstokenEndpoint = accesstokenEndpoint+'&client_id='+integrationsetuplist[0].clientId__c;
+
+            accesstokenEndpoint=accesstokenEndpoint+'&client_secret='+integrationsetuplist[0].client_secret__c;
+
+            accesstokenEndpoint = accesstokenEndpoint+ '&username='+integrationsetuplist[0].server_User_Name__c;
+
+            accesstokenEndpoint = accesstokenEndpoint+ '&password='+integrationsetuplist[0].Server_Password__c;
+
+            Http h = new Http();
+
+            HttpRequest req = new HttpRequest();
+
+req.setEndpoint(accesstokenEndpoint);
+
+req.setMethod('POST');
+
+            blob headerValue = Blob.valueOf(integrationsetuplist[0].server_User_Name__c+':'+integrationsetuplist[0].Server_Password__c);
+
+            string authorizationvalue = 'BASIC '+EncodingUtil.base64Encode(headerValue);
+
+            req.setHeader('Authorization', authorizationvalue);
+
+            HttpResponse hresp = h.send(req);
+
+            system.debug('***hres.getBody()'+hresp.getBody());
+
+            JSONParser parser = JSON.createParser(hresp.getBody());
+
+while(parser.nextToken() !=NULL){
+
+        if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='access_token'){
+
+    parser.nextToken();
+
+        accessToken = parser.getText();
+
+    }
+
+    if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='instance_url'){
+
+    parser.nextToken();
+
+        instanceurl = parser.getText();
+
+    }
+
+            } 
+
+        }
+
+    }
+
+    public void requestLeadDetails(){
+
+    //how can i authenticaet to get access token
+
+    requestAccessToken();
+
+    //accesstoken pass to acces sother rest resource
+
+    string leadGetEndpoint =  instanceurl+'/services/apexrest/LeadService/name='+leadSearchName;
+
+        system.debug('get lead details endpoint'+leadGetEndpoint);
+
+       
+
+        Http h = new Http();
+
+        HttpRequest req = new HttpRequest();
+
+        req.setEndpoint(leadGetEndpoint);
+
+        req.setMethod('GET');
+
+        req.setHeader('Authorization','Bearer '+accessToken);
+
+        req.setHeader('Content-Type', 'application/json');
+
+        HttpResponse res = h.send(req);
+
+        system.debug('res body'+res.getBody());
+
+        if(res.getStatusCode()==200){
+
+        leadResponseList = (list<leadResponse>) JSON.deserialize(res.getBody(), list<leadResponse>.class);    
+
+        }
+
+        system.debug('***leadResponseList'+leadResponseList);
+
+       
+
+     
+
+    }
+
+    public void createLead(){
+
+        JSONGenerator gen = JSON.createGenerator(true);
+
+        gen.writeStartObject();
+
+        gen.writeStringField('fname', leadFirstName);
+
+        gen.writeStringField('lname', leadLastName);
+
+        gen.writeStringField('cname', leadCompanyName);
+
+        gen.writeStringField('leademail', leadEmail);
+
+        gen.writeStringField('leadphoneNumber', leadphoneNumber);
+
+        gen.writeEndObject();
+
+        system.debug('gen==>'+gen);
+
+        string requestJson = gen.getAsString();
+
+    requestAccessToken();
+
+        string leadcreateEndpoint = instanceurl+'/services/apexrest/LeadService/';
+
+        http h = new http();
+
+        httpRequest req = new HttpRequest();
+
+        req.setEndpoint(leadcreateEndpoint);
+
+        req.setMethod('POST');
+
+        req.setBody(requestJson);
+
+        req.setHeader('Authorization','Bearer '+accessToken);
+
+        req.setHeader('Content-Type', 'application/json');
+
+        Httpresponse res = h.send(req);
+
+        system.debug('res==>'+res.getBody());
+
+        leadCreateMessage = res.getBody();
+
+       
+
+    }
+
+    public class leadResponse{
+
+        public string id{get;set;}
+
+        public string Name{get;set;}
+
+        public string Email{get;set;}
+
+        public string Phone{get;set;}
+
+        public string Company{get;set;}
+
+        public string MobilePhone{get;set;}
+
+    }
+
+}

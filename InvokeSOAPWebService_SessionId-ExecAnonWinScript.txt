@@ -1,0 +1,154 @@
+//sample code invoke SOAP web service with session ID from anonymous window
+
+//invoke my prtner WDSL class Login
+//soap class    
+//partnersoapSforceCom class   
+//Login(username and Password)
+
+string username = 'ravikpalani@gmail.com';
+string password = 'Arnav0817';
+partnerSoapSforceCom.soap soapObj = new partnerSoapSforceCom.soap();
+partnerSoapSforceCom.LoginResult logRes = soapObj.login(username,password);
+system.debug('LogRes : ' +logRes);
+
+//step2 - sessionHeader object to pass session Id
+soapWsLeadManager.SessionHeader_element sessionObj = new soapWsLeadManager.SessionHeader_element();
+sessionObj.sessionId = logRes.sessionId;
+
+//step3  - pass session obj (of step2), with soap call
+soapWsLeadManager.wsLeadManager leadService = new soapWsLeadManager.wsLeadManager();
+leadService.SessionHeader = sessionObj;
+leadService.cretaeNewLead('Arnav','Palani','BBTech','AP123@gmail.com','8041231234');
+
+//-------------------------------------------------------------------------
+
+//rest OAUTH Token - POST - REQUEST
+    string consumerKey = '3MVG95jctIhbyCpqKBhfhUgQITLOUF_gUjKgwoNaaVY0VMiyiW6dznmPci7ADZKiH5VSXG79Xowl.XS9zXlfC';
+    string consumersecret = '1D65EC27D47699AA7F5A36A707EA988D2298202D0B6DB72965BA721312FF433D';
+// HTTP call - Send(HttpRequest) --return -- HTTPResponse ---
+  
+Http h = new Http();
+HttpRequest hreq = new HttpRequest();
+
+hreq.setEndpoint('https://login.salesforce.com/services/oauth2/token?grant_type=password&client_id=3MVG95jctIhbyCpqKBhfhUgQITLOUF_gUjKgwoNaaVY0VMiyiW6dznmPci7ADZKiH5VSXG79Xowl.XS9zXlfC&client_secret=1D65EC27D47699AA7F5A36A707EA988D2298202D0B6DB72965BA721312FF433D&username=rkp123@server.com&password=ap123@1234ddvDVSKSBgF2fzQHNYz1CL5J');
+
+hreq.setMethod('POST');
+string username = 'rkp123@server.com';
+string password = 'aP@1234ddvDVSKSBgF2fzQHNYz1CL5J';
+blob headervalue = Blob.valueOf(username+':'+password);
+string authorizationValue = 'BASIC'+EncodingUtil.base64Encode(headervalue);
+hreq.setHeader('Authorization',authorizationValue);
+HttpResponse hresp =  h.send(hreq);
+system.debug('hresp'+hresp.getBody());
+
+
+//-------------------------------------------------------------------------
+
+string atoken;
+string instanceURL;
+
+JSONParser parser = JSON.createParser(hresp.getBody());
+
+while(parser.nextToken() !=NULL){
+
+    if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='access_token'){
+    	parser.nextToken();
+        atoken = parser.getText();
+	}
+
+    if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='instance_url'){
+    	parser.nextToken();
+        instanceURL = parser.getText();
+	}
+}
+system.debug('instanceURL'+instanceURL);
+system.debug('atoken'+atoken);
+
+// SOAP Apex class object
+
+// invoke my operation- method -- vaid session infor -- oAUTH access token
+
+SoapLeadManager.SessionHeader_element sessionObj = new SoapLeadManager.SessionHeader_element();
+
+sessionObj.sessionId = atoken;
+
+SoapLeadManager.LeadManager LM = new SoapLeadManager.LeadManager();
+
+LM.SessionHeader = sessionObj;
+
+lm.endpoint_x = instanceURL+'/services/Soap/class/LeadManager';
+
+string res = LM.createNewLead('RaviK','Palani','AK ENterprises','rk123@gmail.com','+918886980219');
+
+system.debug('response is'+res);
+
+------------------------------------------------------------------------------------ My code -------------------------------------------------------------------------------------------------
+
+sample code invoke SOAP web service with session ID from anonymous window
+
+//invoke my prtner WDSL class Login
+//soap class    
+//partnersoapSforceCom class   
+//Login(username and Password)
+
+/*
+string username = 'ravikpalani@gmail.com';
+string password = 'Arnav0817';
+partnerSoapSforceCom.soap soapObj = new partnerSoapSforceCom.soap();
+partnerSoapSforceCom.LoginResult logRes = soapObj.login(username,password);
+system.debug('LogRes : ' +logRes);
+*/
+
+//step2 - OAUTH call - connected app in server- sessionHeader object to pass session Id
+soapWsLeadManager.SessionHeader_element sessionObj = new soapWsLeadManager.SessionHeader_element();
+sessionObj.sessionId = ******* by someway, Get the session ID ******************
+//step3  - pass session obj (of step2), with soap call
+soapWsLeadManager.wsLeadManager leadService = new soapWsLeadManager.wsLeadManager();
+leadService.SessionHeader = sessionObj;
+leadService.cretaeNewLead('Ravi1','Pal','ctrlf','RKP123@gmail.com','8041231234');
+system.Debug('response' + response);
+
+/*************************************************
+
+//Rest OAUTH token - Post REQuest ----------
+
+String ConsumerKey = '';
+String ConsumerSecret = '';
+
+HTTP call - Send(HttpRequest) --> returns HttpResponse
+
+Http h = new Http();
+HttpRequest hreq = new HttpRequest();
+hreq.setEndpoint(https://login.salesforce.com/service/oauth2/token?grant_type=password&client_id=    &clinent_secret=    &username=ravikpalani@gmail.com&password=Arnav0817');
+hreq.setMethod('Post');
+string username = 'ravikpalani@gmail.com';
+string password = 'Arnav0817';
+blob headervalue = blob.valueof(username+ ':'+password);
+string authorizationvalue = 'BASIC' +EncodingUtil.base64Encode(headervalue);
+hreq.setHeader('Authorization',authorizationvalue);
+HttpResponse hresp = h.send(hreq);
+system.debug('hresp'+hresp.getBody());
+
+//-----------------------------------
+string atoken;
+string instanceURL;
+
+JSONParser parser = JSON.createParser(hresp.getBody());
+
+while(parser.nextToken() !=NULL){
+
+    if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='access_token'){
+    	parser.nextToken();
+        atoken = parser.getText();
+	}
+
+    if((parser.getCurrentToken() == JSONTOKEN.FIELD_NAME) && parser.getText()=='instance_url'){
+    	parser.nextToken();
+        instanceURL = parser.getText();
+	}
+}
+system.debug('instanceURL'+instanceURL);
+system.debug('atoken'+atoken);
+
+
+

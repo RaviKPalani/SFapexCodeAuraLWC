@@ -1,0 +1,188 @@
+// Send a business proposal to each new Contact
+//====================================================================================================
+//************
+// trigger
+//************
+
+trigger Proposal on Contact (before insert) {
+  // Step 0: Create a master list to hold the emails we'll send
+  List<Messaging.SingleEmailMessage> mails = 
+  new List<Messaging.SingleEmailMessage>();
+  
+  for (Contact myContact : Trigger.new) {
+    if (myContact.Email != null && myContact.FirstName != null) {
+      // Step 1: Create a new Email
+      Messaging.SingleEmailMessage mail = 
+      new Messaging.SingleEmailMessage();
+    
+      // Step 2: Set list of people who should get the email
+      List<String> sendTo = new List<String>();
+      sendTo.add(myContact.Email);
+      mail.setToAddresses(sendTo);
+    
+      // Step 3: Set who the email is sent from
+      mail.setReplyTo('sirdavid@bankofnigeria.com');
+      mail.setSenderDisplayName('Official Bank of Nigeria');
+    
+      // (Optional) Set list of people who should be CC'ed
+      List<String> ccTo = new List<String>();
+      ccTo.add('business@bankofnigeria.com');
+      mail.setCcAddresses(ccTo);
+
+      // Step 4. Set email contents - you can use variables!
+      mail.setSubject('URGENT BUSINESS PROPOSAL');
+      String body = 'Dear ' + myContact.FirstName + ', ';
+      body += 'I confess this will come as a surprise to you.';
+      body += 'I am John Alliston CEO of the Bank of Nigeria.';
+      body += 'I write to request your cooperation in this ';
+      body += 'urgent matter as I need a foreign partner ';
+      body += 'in the assistance of transferring $47,110,000 ';
+      body += 'to a US bank account. Please respond with ';
+      body += 'your bank account # so I may deposit these funds.';
+      mail.setHtmlBody(body);
+    
+      // Step 5. Add your email to the master list
+      mails.add(mail);
+    }
+  }
+  // Step 6: Send all emails in the master list
+  Messaging.sendEmail(mails);
+}
+
+
+//====================================================================================================
+
+//************
+// test class
+//************
+
+@isTest (SeeAllData=true)
+private class TestSendWinEmail
+{
+static testMethod void TestSendWinEmail ()
+{
+//Create some test data
+//Owner -00540000003D4JK
+//Case – 50029000004HKde
+Task b = new Task (Subject =’Testing 123′,
+Prefer_to_respond_via_Email__c = False,
+OwnerId = ‘00540000003D4JK’,
+WhatId=’50029000004HKde’
+,WhoId=’00329000005ZiTB’
+);
+
+insert b;
+Task b1=[select id, Subject from task where id=:b.id];
+b1.Prefer_to_respond_via_Email__c = True;
+update b1;
+
+//Time to check that the Task was inserted
+System.assertEquals(‘Testing 123’, b1.Subject);
+}
+}
+
+
+//====================================================================================================
+
+//************
+// trigger
+//************
+
+trigger SendWinEmail on Task (after update) {
+List mails =
+new List();
+
+for (Task t : Trigger.new) {
+Contact myContact =[SELECT Id,Email,FirstName FROM Contact WHERE Id = :t.WhoId];
+
+System.assertEquals(‘00329000005ZiTB’,myContact.Id);
+
+Messaging.SingleEmailMessage mail =
+new Messaging.SingleEmailMessage();
+
+// Step 2: Set list of people who should get the email
+List sendTo = new List();
+sendTo.add(myContact.Email);
+
+mail.setToAddresses(sendTo);
+
+// Step 3: Set who the email is sent from
+mail.setReplyTo(‘sirdavid@bankofnigeria.com’);
+mail.setSenderDisplayName(‘Official Bank of Nigeria’);
+
+// (Optional) Set list of people who should be CC’ed
+List ccTo = new List();
+ccTo.add(‘business@bankofnigeria.com’);
+mail.setCcAddresses(ccTo);
+
+// Step 4. Set email contents – you can use variables!
+mail.setSubject(‘URGENT BUSINESS PROPOSAL’);
+String body = ‘Dear ‘ + myContact.FirstName + ‘, ‘;
+body += ‘I confess this will come as a surprise to you.’;
+body += ‘I am John Alliston CEO of the Bank of Nigeria.’;
+body += ‘your bank account # so I may deposit these funds.’;
+mail.setHtmlBody(body);
+
+// Step 5. Add your email to the master list
+mails.add(mail);
+}
+Messaging.sendEmail(mails);
+}
+
+
+//====================================================================================================
+
+//************
+// Batch apex class
+//************
+
+How to send more than 10 emails using batch apex .Plz help.
+global class Batch_to_SentEmailNotify implements Database.Batchable
+{
+global Database.QueryLocator start(Database.BatchableContext BC)
+{
+
+string s=’Blocked’;
+
+String query = ‘Select Id,Resort_Master__r.Name,Executive_Name__r.Email__c,Name_of_the_Guest__c,Company_Name__c,Block_Release_Date__c,Check_In__c,Check_Out__c,
+Total_Number_of_Rooms_Booked__c,Booking_Status__c,Source__c,Market_Segment__c,Executive_Name__r.Name 
+FROM Non_Member_Booking_Request__c 
+where Booking_Status__c=: s AND Email_Sent_Test__c != TRUE’;
+return Database.getQueryLocator(query);
+}
+
+global void execute(Database.BatchableContext BC, List scope)
+{
+ListlstNMBReq = new list();
+for(Non_Member_Booking_Request__c c : scope)
+{
+system.debug(‘++++++++++++++system.today+2 ++++++++++++++’+system.today()+2);
+string email = c.Executive_Name__r.Email__c;
+if(email !=null &&(system.today()+2 == c.Check_In__c))
+{
+Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+mail.setUseSignature(false);
+mail.setToAddresses(new String[] { email});
+mail.setSubject(‘Block Alert ‘);
+mail.setReplyTo(‘harishk968@gmail.com’);
+mail.setCcAddresses(new String[] { ‘harishk968@gmail.com’ });
+mail.setHtmlBody(‘Dear ‘+c.Executive_Name__r.Name+ ‘,’+’Your current tentative blocks are as under with the respective block release dates.’+’ Name of Resort First Name Company /Travel Agent Block Release Date Check In Check Out Rooms Booking Status Source Market Segment Executive Name ‘ +”+”+ c.Resort_Master__r.Name +”+”+ c.Name_of_the_Guest__c +”+”+ c.Company_Name__c +”+”+ c.Block_Release_Date__c+”+”+ c.Check_In__c +”+”+ c.Check_Out__c +”+”+ c.Total_Number_of_Rooms_Booked__c +”+”+ c.Booking_Status__c+”+”+ c.Source__c +”+”+ c.Market_Segment__c +”+”+ c.Executive_Name__r.Name+”+’ ‘+’Please let us know of the payment and contract details in order to regularize & confirm the same on the system. In the event of the same not being regularized, the block will be automatically released from the system and further rooms will be subject to availability.’+’Thank You. ‘+’Regards’+’SanjeeviKumar G’);
+Messaging.sendEmail(new Messaging.SingleEmailMessage[] {mail});
+system.debug(‘@@@@@@@@@@@@@@@mail@@@@@@@@@@@@@@@’+mail);
+c.Email_Sent_Test__c = TRUE;
+lstNMBReq.add(c);
+}
+
+if(lstNMBReq.size() > 0){
+
+update lstNMBReq;
+}
+}
+}
+global void finish(Database.BatchableContext BC)
+{
+}
+}
+
+
+//=====================================================================================

@@ -1,0 +1,42 @@
+global class BATCH_expenseCheck implements Database.Batchable<sobject>{
+
+	global final string queryString;
+
+	global BATCH_expenseCheck(){
+		if (queryString == null){
+			string temp = 'select ';
+			temp += 'id, all_expenses_reimbursed__c, owner_id from Account where all_expense_reimbursed__c = 'false';
+			
+			queryString = temp;
+			system.debug(queryString);
+		}
+	}
+	
+	global Database.QueryLocator start(Database.BatchableContext bc){
+		return Database.getQueryLocator(queryString);
+	}
+	
+	global void execute(Database.BatchableContext bc, List<Account> scope){
+		ProcessThis(scope);
+	}
+	
+	global static void ProcessThis(List<Account> scope){
+		list<Task> taskList = new list<Task>();
+		
+		for (Account a : scope){
+			task t = new Task();
+			t.whatid = a.id;
+			t.ownerid = a.ownerid;
+			t.activitydate = system.today()+1;
+			t.subject = 'This account has outstanding expenses.';
+			t.status = 'Not Started';
+			tasklist.add(t);
+		}
+		insert tasklist;
+	}
+	
+	global void finish(Database.BatchableContext bc){
+	}
+	
+}
+
